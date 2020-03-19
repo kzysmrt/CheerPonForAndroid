@@ -14,13 +14,26 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 
-class BackgroundService : Service(),BackgroundBroadcastReceiverListener {
+class BackgroundService: Service(), BackgroundBroadcastReceiverListener {
+
+    //コンテキストの処理
+    /*
+    private lateinit var context: Context
+    private lateinit var mnm: MyNotificationMessages
+    init{
+        context = _context
+        mnm = MyNotificationMessages(context)
+    }
+    */
+    //var mnm = MyNotificationMessages(this)
 
     //スクリーンロックの処理
     var bbr: BackgroundBroadcastReceiver = BackgroundBroadcastReceiver(this)
 
     override fun onCreate() {
         super.onCreate()
+        //コンテキストの処理
+
         //スクリーンロックの処理
         //レシーバーの登録
         registerReceiver(bbr, IntentFilter(Intent.ACTION_SCREEN_ON))
@@ -38,7 +51,7 @@ class BackgroundService : Service(),BackgroundBroadcastReceiverListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         //サービス開始
         //5秒以内にサービスをユーザに通知する必要がある
-        //通知の準備
+        //通知チャネルの作成
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val name = "background service"
         val id = "background channel"
@@ -96,10 +109,20 @@ class BackgroundService : Service(),BackgroundBroadcastReceiverListener {
     private var count: Int = 0
     private val counthundler =  Handler()
     private val countrunnable = object: Runnable {
+
         override fun run() {
             //TODO("Not yet implemented")
-            count++;
+            count++
             Log.d("BackgroundService", count.toString())
+
+            //5病後に通知をする
+            /*
+            if(count == 5){
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    mnm.sendMessage()
+                }
+            }
+            */
             counthundler.postDelayed(this, 1000)
         }
     }
