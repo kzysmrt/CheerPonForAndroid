@@ -116,13 +116,13 @@ class BackgroundService: Service(), BackgroundBroadcastReceiverListener {
             Log.d("BackgroundService", count.toString())
 
             //5病後に通知をする
-            /*
+
             if(count == 5){
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    mnm.sendMessage()
+                   sendMessage("バックグラウンドの通知です")
                 }
             }
-            */
+
             counthundler.postDelayed(this, 1000)
         }
     }
@@ -143,4 +143,28 @@ class BackgroundService: Service(), BackgroundBroadcastReceiverListener {
         Log.d("BackgroundService", "onUserPresent was called.")
     }
 
+
+    //メッセージの処理
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun sendMessage(message: String) {
+        var manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        var channel = NotificationChannel("new article for background service", "BG新着記事", NotificationManager.IMPORTANCE_DEFAULT)
+        channel.description = "BG新着記事を通知するためのチャンネルです"
+        channel.enableVibration(true)
+        channel.setShowBadge(true)
+        manager.createNotificationChannel(channel)
+
+        var builder = NotificationCompat.Builder(this, "new articles")
+        var intent  =Intent(this, MainActivity::class.java)
+        var pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        var notification = builder.setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("BG通知タイトル")
+            .setContentText("BG通知テキスト: " + message)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        manager.notify(1, notification)
+    }
 }
