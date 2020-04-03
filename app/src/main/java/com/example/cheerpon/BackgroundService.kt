@@ -27,6 +27,9 @@ class BackgroundService: Service(), BackgroundBroadcastReceiverListener {
     */
     //var mnm = MyNotificationMessages(this)
 
+    //時間処理
+    val mtcc: MyTimeCalculationClass = MyTimeCalculationClass()
+
     //スクリーンロックの処理
     var bbr: BackgroundBroadcastReceiver = BackgroundBroadcastReceiver(this)
 
@@ -34,6 +37,8 @@ class BackgroundService: Service(), BackgroundBroadcastReceiverListener {
         super.onCreate()
         //コンテキストの処理
 
+        //現在時刻の表示
+        Log.d("time", mtcc.getStartTime())
         //スクリーンロックの処理
         //レシーバーの登録
         registerReceiver(bbr, IntentFilter(Intent.ACTION_SCREEN_ON))
@@ -105,18 +110,22 @@ class BackgroundService: Service(), BackgroundBroadcastReceiverListener {
     }
     /*******************************
      * カウントtimer処理用
+     * 1秒ごとにする処理
      *******************************/
     private var count: Int = 0
     private val counthundler =  Handler()
     private val countrunnable = object: Runnable {
 
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun run() {
             //TODO("Not yet implemented")
             count++
             Log.d("BackgroundService", count.toString())
+            //
+            Log.d("time", mtcc.getNowTime())
+            Log.d("time", mtcc.getNowUnixTime())
 
             //5病後に通知をする
-
             if(count == 5){
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                    sendMessage("バックグラウンドの通知です")
